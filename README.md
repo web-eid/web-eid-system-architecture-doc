@@ -173,7 +173,7 @@ Figure 4: Web eID internal design
 - The browser extension communicates with the Web eID native application installed on the host. The native application is built with Qt and consists of the controller component and `libpcsc-cpp`, `libeid`, `libgui` libraries.
 - The controller component is responsible for coordinating interaction between other components and the browser extension. Controller is event-based.
 - `libpcsc-cpp` is a pure C++ library for accessing smart cards using the PC/SC API.
-- `libeid` is a pure C++ library that encapsulates smart card APDU commands and manages communication with the token by using `libpcsc-cpp` services. It also supports fallback to PKCS#11 and CNG in case of unknown tokens.
+- `libeid` is a pure C++ library that encapsulates smart card APDU commands and manages communication with the smart card by using `libpcsc-cpp` services. It also supports fallback to PKCS#11 and CNG in case of unknown smart cards or security tokens.
 - `libgui` is a Qt library of cross-platform dialogs that the application uses.
 
 ### Technical overview of authentication and digital signing
