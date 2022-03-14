@@ -9,20 +9,22 @@ date: <<DATE>>
 
 As of September 2021, the Estonian Information System Authority is preparing to introduce Web eID -- a new architecture solution for web authentication and signing[^webeid]. In this new architecture, a user of the Estonian ID card is authenticated to a website on the application level by signing the website’s challenge with the help of the Web eID browser extension.
 
-Until now, Web eID is using the OpenID X509 ID Token format[^openidx5idtoken] in authentication tokens. However, the current authentication token format has weaknesses that make it possible to use it incorrectly.
+In version 1, Web eID was using the OpenID X509 ID Token format[^openidx5idtoken] in authentication tokens. However, the OpenID X509 ID Token format had weaknesses that make it possible to use it incorrectly.
 
-In this paper, we provide an overview of the weaknesses, and the specification of the new Web eID authentication token format that mitigates the weaknesses.
+In this paper, we provide an overview of the weaknesses, and the specification of the new Web eID authentication token format used in Web eID version 2 that mitigates the weaknesses.
 
 The paper is based on Arnis Paršovs paper _On the format of the authentication proof used by RIA’s Web eID solution_[^parsovs].
 
 [^webeid]: <https://github.com/web-eid/web-eid-system-architecture-doc>
-[^openidx5idtoken]: <https://github.com/web-eid/web-eid-system-architecture-doc#openid-x509-id-token-specification>
+[^openidx5idtoken]: <https://github.com/web-eid/web-eid-system-architecture-doc/tree/a717e0625d16cf5a8fc5bae4ebecda903d2cae65#openid-x509-id-token-specification>
 [^parsovs]: <https://cybersec.ee/storage/webeid_auth_proof.pdf>
 
 
 # The Web eID authentication token format
 
-The current Web eID authentication token format is based on the OpenID Connect ID Token[^openidconnectidtoken] specification. All fields required in the OpenID Connect specification are present, including `iat`, `exp`, `iss` and `sub` that are ignored by the Web eID authentication protocol.
+The authentication token format used in  Web eID version 1 is based on the OpenID Connect ID Token[^openidconnectidtoken] specification. All fields required in the OpenID Connect specification are present, including `iat`, `exp`, `iss` and `sub` that are ignored by the Web eID authentication protocol.
+
+\newpage
 
 **Example token**:
 
@@ -55,7 +57,7 @@ The header part contains a JSON structure that contains the `alg` field which id
 
 [^openidconnectidtoken]: <http://openid.net/specs/openid-connect-core-1_0.html#IDToken>
 
-## Weaknesses of the current OpenID X509 ID Token format
+## Weaknesses of the OpenID X509 ID Token format
 
 The only values that have to be included under the user’s signature to achieve the security properties of the protocol are the website’s challenge (the `nonce` field above) and the website’s origin (the `aud` field above). The inclusion of the fields `exp`, `iat`, `iss` and `sub` under the signature serve no practical purpose. On the contrary, the presence of these fields in the authentication token introduces a risk of vulnerabilities in case the authentication implementation of a website decides to rely on any of them for making security critical decisions. A correct implementation should ignore these fields and verify the freshness of the authentication token using a locally-stored trusted timestamp that indicates the time when the challenge was issued.
 
@@ -65,7 +67,7 @@ Furthermore, the inclusion of the `nonce` field in the authentication token intr
 
 Even though the Web eID project provides ready-made libraries for validating the authentication token securely, it is possible that not every developer implementing the solution is able to use them. In this case it is also possible that they will not closely examine the documentation and will not be able to precisely follow the instructions to ignore certain fields in the token. Therefore, it is desirable to design a security protocol in a manner that makes implementation mistakes less likely to occur.
 
-## Reasoning behind the current format
+## Reasoning behind the OpenID X509 ID Token format
 
 As mentioned above, the redundant fields `exp`, `iat`, `iss` and `sub` have been included in the JWT authentication token to support compatibility with the OpenID Connect ID Token specification. The security analysis of the Web eID solution further adds that the use of the OpenID Connect format offers a cheaper migration path, as the format is already known for e-service developers[^webeidanalysis].
 
@@ -78,7 +80,7 @@ We argue that any similarities of the Web eID authentication token to the JWT fo
 
 ## Proposed new format for the Web eID authentication token
 
-Since to our knowledge there does not exist a standardized format for an authentication proof that implements nothing less and nothing more than is necessary for the Web eID authentication protocol, we propose to use a simple and foolproof[^foolproof] special purpose format for the Web eID authentication token. We intentionally avoid using the JWT format, but still use its proven basic building blocks: the JSON format and base64-encoding.
+Since to our knowledge there does not exist a standardized format for an authentication proof that implements nothing less and nothing more than is necessary for the Web eID authentication protocol, we propose to use a simple and foolproof[^foolproof] special purpose format for the Web eID authentication token. The new format is used in  Web eID version 2. We intentionally avoid using the JWT format, but still use its proven basic building blocks: the JSON format and base64-encoding.
 
 The Web eID authentication token is a JSON data structure that looks like the following example:
 
