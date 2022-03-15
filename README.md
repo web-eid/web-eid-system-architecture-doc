@@ -23,6 +23,7 @@
       * [Authentication and TLS Token Binding](#authentication-and-tls-token-binding)
       * [Protection against man\-in\-the\-middle attacks during authentication with origin validation](#protection-against-man-in-the-middle-attacks-during-authentication-with-origin-validation)
     * [Digital signing](#digital-signing)
+  * [The full overview](#the-full-overview)
   * [Security analysis](#security-analysis)
   * [JavaScript library](#javascript-library)
   * [Web eID authentication token specification](#web-eid-authentication-token-specification)
@@ -316,9 +317,9 @@ The digital signing steps are as follows:
 
 ### The full overview
 
-The following diagram provides a full overview of Web eID and related third party components across the server and user computer.
+The following diagram provides an overview of Web eID and related third party components across the server and user computer.
 
-![Full overview of Web eID and related components](diagrams/Web-eID-big-picture.png)
+![Full overview of Web eID and related components](diagrams/Web-eID-full-overview.png)
 
 Figure 8: Full overview of Web eID and related components
 
