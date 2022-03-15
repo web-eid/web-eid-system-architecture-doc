@@ -314,6 +314,14 @@ The digital signing steps are as follows:
 1. **OCSP service responds that certificate status is good**.
 1. **Server application responds that signing is successful**.
 
+### The full overview
+
+The following diagram provides a full overview of Web eID and related third party components across the server and user computer.
+
+![Full overview of Web eID and related components](diagrams/Web-eID-big-picture.png)
+
+Figure 8: Full overview of Web eID and related components
+
 ### Security analysis
 
 Security analysis of the solution is available in the document ["Analysis of planned architectural changes in Open-eID"](https://web-eid.github.io/web-eid-cybernetica-analysis/webextensions-main.pdf).
@@ -428,7 +436,7 @@ The following diagram provides an overview of the Web eID general and Safari ext
 
 ![Web eID Safari extension components](diagrams/Web-eID-Safari-Extension-Component-Model.png)  
 
-Figure 8: Web eID general and Safari extension-specific components
+Figure 9: Web eID general and Safari extension-specific components
 
 #### Internet Explorer
 
