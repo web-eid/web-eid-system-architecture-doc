@@ -262,7 +262,7 @@ The server application can retrieve user details from the authentication certifi
 
 Use of Token Binding protects the authentication flow from man-in-the-middle and token export and replay attacks. With token binding, man-in-the-middle attacks cannot forward requests or replay credentials because they cannot prove they have the key bound to the token, as the key is securely stored in the user's device.
 
-A TSL terminating reverse proxy may be in use in front of the server application. There is a draft proposal [*HTTPS Token Binding with TLS Terminating Reverse Proxies*](https://tools.ietf.org/html/draft-ietf-tokbind-ttrp-07) to support forwarding token binding information through the proxy to the backend server, which facilitates the reverse proxy and backend server functioning together as though they are a single logical server side deployment of Token Binding.
+A TLS terminating reverse proxy may be in use in front of the server application. There is a draft proposal [*HTTPS Token Binding with TLS Terminating Reverse Proxies*](https://tools.ietf.org/html/draft-ietf-tokbind-ttrp-07) to support forwarding token binding information through the proxy to the backend server, which facilitates the reverse proxy and backend server functioning together as though they are a single logical server side deployment of Token Binding.
 
 However, Token Binding is not supported by mainstream browsers and proxy usage may still be problematic: the server application can see if token binding is missing but it is not obvious if that is malicious or a proxy has stripped off the token binding.
 
