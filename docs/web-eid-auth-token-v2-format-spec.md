@@ -114,6 +114,24 @@ It contains the following fields:
 
 The value that is signed by the user’s authentication private key and included in the `signature` field is `hash(origin)+hash(challenge)`. The hash function is used before concatenation to ensure field separation as the hash of a value is guaranteed to have a fixed length. Otherwise the origin `example.com` with challenge `.eu1234` and another origin `example.com.eu` with challenge `1234` would result in the same value after concatenation. The hash function `hash` is the same hash function that is used in the signature algorithm, for example SHA256 in case of RS256.
 
+
+#### Clarification on `nonce` (challenge) processing
+
+- The `nonce` value is supplied by the Relying Party (RP) as a **Base64-encoded string** representing a cryptographically strong random value (at least 16 bytes of entropy recommended).  
+- The Web-eID application **verifies that the `nonce` is valid Base64** but does **not decode** it into raw bytes.  
+- Instead, the **literal Base64 string** is UTF-8 encoded and used in the hashing step.  
+
+Therefore, the backend must reproduce the exact same calculation:
+
+```
+Hash( Hash(origin.encode("utf-8")) + Hash(nonce.encode("utf-8")) )
+```
+
+where `nonce.encode("utf-8")` is the UTF-8 encoding of the Base64 string, not the decoded bytes.  
+
+**Base64 format requirement.** The `nonce` must be encoded in **standard Base64** (RFC 4648 §4) using the alphabet `[A–Z, a–z, 0–9, +, /]` and `=` padding.  
+This differs from JWT, which uses Base64URL (RFC 7515/7519).
+
 To verify the signature, the website has to reconstruct the signed data. Since the challenge value and the origin field are not included in the token in the proposed solution, the website is forced to reconstruct the signed data using the origin and challenge values from its trusted local storage. This provides an important security advantage as it is guaranteed that if the signature verification succeeds, then the origin and challenge have been implicitly and correctly verified without the need to implement any additional security checks. Furthermore, it also guarantees that the authentication proof was received from the same browser to which the corresponding challenge was issued, as the website is forced to lookup the challenge and, possibly, the origin, in case it can vary, from its local storage using an identifier specific to the browser session.
 
 [^foolproof]: So simple, plain, or reliable as to leave no opportunity for error, misuse, or failure.
