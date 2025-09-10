@@ -122,15 +122,10 @@ The value that is signed by the user’s authentication private key and included
 - Instead, the **literal Base64 string** is UTF-8 encoded and used in the hashing step.  
 
 Therefore, the backend must reproduce the exact same calculation:
-
 ```
 Hash( Hash(origin.encode("utf-8")) + Hash(nonce.encode("utf-8")) )
 ```
-
 where `nonce.encode("utf-8")` is the UTF-8 encoding of the Base64 string, not the decoded bytes.  
-
-**Base64 format requirement.** The `nonce` must be encoded in **standard Base64** (RFC 4648 §4) using the alphabet `[A–Z, a–z, 0–9, +, /]` and `=` padding.  
-This differs from JWT, which uses Base64URL (RFC 7515/7519).
 
 To verify the signature, the website has to reconstruct the signed data. Since the challenge value and the origin field are not included in the token in the proposed solution, the website is forced to reconstruct the signed data using the origin and challenge values from its trusted local storage. This provides an important security advantage as it is guaranteed that if the signature verification succeeds, then the origin and challenge have been implicitly and correctly verified without the need to implement any additional security checks. Furthermore, it also guarantees that the authentication proof was received from the same browser to which the corresponding challenge was issued, as the website is forced to lookup the challenge and, possibly, the origin, in case it can vary, from its local storage using an identifier specific to the browser session.
 
