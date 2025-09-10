@@ -114,7 +114,6 @@ It contains the following fields:
 
 The value that is signed by the user’s authentication private key and included in the `signature` field is `hash(origin)+hash(challenge)`. The hash function is used before concatenation to ensure field separation as the hash of a value is guaranteed to have a fixed length. Otherwise the origin `example.com` with challenge `.eu1234` and another origin `example.com.eu` with challenge `1234` would result in the same value after concatenation. The hash function `hash` is the same hash function that is used in the signature algorithm, for example SHA256 in case of RS256.
 
-
 #### Clarification on `nonce` (challenge) processing
 
 - The `nonce` value is supplied by the Relying Party (RP) as a **Base64-encoded string** representing a cryptographically strong random value (at least 16 bytes of entropy recommended).  
