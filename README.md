@@ -32,12 +32,10 @@
   * [Browser extensions](#browser-extensions)
     * [Chrome, Edge and Firefox](#chrome-edge-and-firefox)
     * [Safari](#safari)
-    * [Internet Explorer](#internet-explorer)
   * [Native application](#native-application)
     * [Native application messaging API](#native-application-messaging-api)
       * [General](#general)
       * [PKI operations](#pki-operations)
-  * [libpcsc\-cpp: PC/SC library](#libpcsc-cpp-pcsc-library)
   * [libelectronic\-id: eID token library](#libelectronic-id-eid-token-library)
   * [Web eID authentication token validation libraries](#web-eid-authentication-token-validation-libraries)
   * [Implementation guide and example applications](#implementation-guide-and-example-applications)
@@ -174,10 +172,9 @@ Figure 4: Web eID internal design
 - JavaScript library `web-eid.js` is a thin wrapper on top of the messaging interface provided by the Web eID native application via the Web eID browser extension.
 - The Web eID browser extension is either a [WebExtensions](https://wiki.mozilla.org/WebExtensions) extension in browsers that support it (Chrome, Edge and Firefox) or a [Web Extension](https://developer.apple.com/documentation/safariservices/safari_web_extensions) in Safari for macOS. The Safari extension architecture is slightly different. See section *[Safari](#safari)* below for details.
 - The browser extension communicates with the Web eID native application installed on the host using native messaging.
-- The native application is built with Qt and consists of the application, controller and UI modules and uses the `libpcsc-cpp` and `libelectronic-id` libraries.
+- The native application is built with Qt and consists of the application, controller and UI modules and uses the `libelectronic-id` library.
 - The controller module is a Qt library responsible for coordinating interaction between other components and the browser extension. Controller is event-based. Card event monitoring and communication with the eID card runs in separate threads from the main application thread. The controller module contains thread management classes and command handlers that perform PKI operations like signing and retrieving the certificate.
 - The UI module contains cross-platform Qt dialogs that the application uses to communicate with the user.
-- `libpcsc-cpp` is a pure C++ library for accessing smart cards using the PC/SC API.
 - `libelectronic-id` is a pure C++ library for performing cryptographic operations with eID smart cards that encapsulates the cards' APDU commands and manages communication with the smart card by using `libpcsc-cpp` services. It also supports using the PKCS#11 API in case the APDU commands are not available.
 - Electronic ID cards are divided into two tiers:
   - for tier 1 cards, the specification of the PC/SC APDU protocol is available and the PC/SC API is used to communicate with the cards directly;
@@ -439,10 +436,6 @@ The following diagram provides an overview of the Web eID general and Safari ext
 
 Figure 9: Web eID general and Safari extension-specific components
 
-#### Internet Explorer
-
-As Microsoft has [announced](https://blogs.windows.com/windowsexperience/2021/05/19/the-future-of-internet-explorer-on-windows-10-is-in-microsoft-edge/) that the Internet Explorer 11 desktop application will be retired on June 15, 2022, there is no support for Internet Explorer in Web eID.
-
 ### Native application
 
 The Web eID native application is built with the [Qt](https://www.qt.io/) framework. It consists of
@@ -497,13 +490,6 @@ Messaging API supports the following PKI operations. The mandatory `origin` fiel
   - response: `{"signature": "base64", "signatureAlgorithm": {"cryptoAlgorithm": "string", "hashFunction": "string", "paddingScheme": "string"}}`.
 
 
-### libpcsc-cpp: PC/SC library
-
-`libpcsc-cpp` is a C++ library for communicating with smart cards using the PC/SC API.
-
-Microsoft implemented PC/SC in Microsoft Windows 2000/XP and free implementation of PC/SC, PC/SC Lite, is available for Linux and other Unixes; a forked version comes bundled with macOS. The PC/SC API interface has been stable for more than twenty years and is the foundation of all the higher-level operating system smart card cryptographic APIs that Open eID currently uses.
-
-More information about `libpcsc-cpp` and its source code is available in the `libpcsc-cpp` [GitHub repository](https://github.com/web-eid/libpcsc-cpp).
 
 ### libelectronic-id: eID token library
 
@@ -521,8 +507,6 @@ Java applications can use the `web-eid-authtoken-validation-java` library. The f
 
 .NET applications can use the `web-eid-authtoken-validation-dotnet` library. The full specification of the library API and its source code is available in the `web-eid-authtoken-validation-dotnet` [GitHub repository](https://github.com/web-eid/web-eid-authtoken-validation-dotnet).
 
-A C++ implementation of the Web eID authentication token validation algorithm is planned with [SWIG](http://www.swig.org/) bindings for Go, Node.js, PHP, Python and Ruby.
-
 ### Implementation guide and example applications
 
 To implement authentication and digital signing with Web eID in a Java or .NET web application,
@@ -533,9 +517,11 @@ To implement authentication and digital signing with Web eID in a Java or .NET w
   - for digital signing, use the *digidoc4j* Java library according to instructions [here](https://github.com/open-eid/digidoc4j/wiki/Examples-of-using-it),
 - in the back end of a .NET web application,
   - for authentication, use the *web-eid-authtoken-validation-dotnet* .NET library according to instructions [here](https://github.com/web-eid/web-eid-authtoken-validation-dotnet#quickstart),
-  - for digital signing, use the C# bindings of the `libdigidocpp` library according to instructions [here](https://github.com/web-eid/web-eid-asp-dotnet-example/wiki/How-to-implement-digital-signing-in-a-.NET-web-application-back-end).
+  - for digital signing, use the C# bindings of the `libdigidocpp` library according to instructions [here](https://github.com/web-eid/web-eid-authtoken-validation-dotnet/wiki/How-to-implement-digital-signing-in-a-.NET-web-application-back-end).
+- in the back end of a PHP web application,
+  - for authentication, use the *web-eid-authtoken-validation-php* PHP library according to instructions [here](https://github.com/web-eid/web-eid-authtoken-validation-php#quickstart),
 
-The full source code and overview of an example Spring Boot web application that uses Web eID for authentication and digital signing is available [here](https://github.com/web-eid/web-eid-spring-boot-example). The .NET/C# version of the same example is available [here](https://github.com/web-eid/web-eid-asp-dotnet-example).
+The full source code and overview of an example Spring Boot web application that uses Web eID for authentication and digital signing is available [here](https://github.com/web-eid/web-eid-authtoken-validation-java/tree/main/example). The .NET/C# version of the same example is available [here](https://github.com/web-eid/web-eid-authtoken-validation-dotnet/tree/main/example). The PHP version of the example application is available [here](https://github.com/web-eid/web-eid-authtoken-validation-php/tree/main/example).
 
 ## References
 
@@ -557,5 +543,3 @@ The full source code and overview of an example Spring Boot web application that
 1. ["DigiDoc4j"](http://open-eid.github.io/digidoc4j/), *DigiDoc4j project documentation*
 1. ["Analysis of planned architectural changes in Open-eID"](https://web-eid.github.io/web-eid-cybernetica-analysis/webextensions-main.pdf), *Estonian Information System Authority and Cybernetica AS*
 1. ["OWASP Session Management Cheat Sheet"](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet)
-1. ["The future of Internet Explorer on Windows 10 is in Microsoft Edge"](https://blogs.windows.com/windowsexperience/2021/05/19/the-future-of-internet-explorer-on-windows-10-is-in-microsoft-edge/), *Windows Experience Blog*
-
