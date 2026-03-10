@@ -1,8 +1,12 @@
 # Web eID: electronic identity cards on the Web
 
+<img src="docs/img/eu-fund-flags.jpg" width="300" alt="European Regional Development Fund">
+
 ## Table of Contents
 
 * [Introduction](#introduction)
+  * [Web eID project websites](#web-eid-project-websites)
+    * [Web eID for Mobile protocol](#web-eid-for-mobile-protocol)
   * [Use cases](#use-cases)
     * [Authentication](#authentication)
     * [Signing documents](#signing-documents)
@@ -52,6 +56,12 @@ The Web eID solution consists of a JavaScript library, browser extension and a n
 The solution is cross-platform and works in all modern browsers in Windows, macOS and Linux.
 
 This document defines the functionality and technical design of the Web eID solution.
+
+### Web eID project websites
+
+#### Web eID for Mobile protocol
+
+In addition to the browser extension–based architecture described in this document, Web eID supports mobile authentication and digital signing through the [Web eID for Mobile protocol](https://github.com/web-eid/web-eid-for-mobile-architecture-doc), which uses browser-based flows on devices where extensions are not supported.
 
 ### Use cases
 
@@ -553,3 +563,4 @@ The full source code and overview of an example Spring Boot web application that
 1. ["DigiDoc4j"](http://open-eid.github.io/digidoc4j/), *DigiDoc4j project documentation*
 1. ["Analysis of planned architectural changes in Open-eID"](https://web-eid.github.io/web-eid-cybernetica-analysis/webextensions-main.pdf), *Estonian Information System Authority and Cybernetica AS*
 1. ["OWASP Session Management Cheat Sheet"](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet)
+1. ["Web eID for Mobile protocol"](https://github.com/web-eid/web-eid-for-mobile-architecture-doc), *Web eID project specification for mobile NFC authentication and digital signing*
