@@ -211,7 +211,7 @@ The authentication steps are as follows:
 1. **JavaScript application sends the initial authentication request to the server application**. JavaScript application sends the initial authentication challenge nonce request to the server application using `fetch()`.
 1. **Server application responds with the challenge nonce**. The server application generates a cryptographic challenge nonce, a large random number that can be used only once, stores it in the nonce store along with the issuing time, base64-encodes it and returns it as the response. The challenge nonce must contain at least 256 bits of entropy. The browser extension and native application reject challenge nonces shorter than 44 bytes (length of base64-encoded 256 bits).
 1. **JavaScript application initiates Web eID authentication**. The JavaScript application retrieves the challenge nonce from the response and calls the `web-eid.js` JavaScript library function `webeid.authenticate()`, passing the challenge nonce as parameter. `web-eid.js` sends the authentication initiation message along with the challenge nonce to the browser extension.  
-     The Web eID browser extension  receives the message from `web-eid.js`, launches the Web eID native application and passes the challenge and document origin `location.origin` as arguments to the `authenticate` command.
+     The Web eID browser extension  receives the message from `web-eid.js`, launches the Web eID native application and passes the challenge and document origin `location.origin` as arguments to the `authenticate` command. The origin is passed using the browser's ASCII serialization of an origin.
 1. **Web eID application asks consent and PIN from the user**. The Web eID application displays a dialog to the user with an input field for entering the authentication PIN and a message requesting consent to allow sending user's name and personal identification code to the server. User consent is required as the authentication certificate contains personal data.
 1. **User enters the authentication PIN and gives consent**.
 1. **Web eID application exchanges APDUs with the eID card to get the authentication certificate**. The Web eID application uses the PC/SC API to send APDU commands to the smart card to select the authentication certificate file and read its content. In case of a tier 2 card, it uses the PKCS#11 API instead to get the certificate.
@@ -383,6 +383,16 @@ It contains the following fields:
 The value that is signed by the user’s authentication private key and included in the `signature` field is `hash(origin)+hash(challenge nonce)`. The hash function is used before concatenation to ensure field separation as the hash of a value is guaranteed to have a fixed length. Otherwise the origin `example.com` with challenge nonce `.eu1234` and another origin `example.com.eu` with challenge nonce `1234` would result in the same value after concatenation. The hash function `hash` is the same hash function that is used in the signature algorithm, for example SHA256 in case of RS256.
 
 The `origin` value that is signed over must contain the URL of the website origin, i.e. the URL serving the web application. `origin` URL must be in the form of `<scheme> "://" <hostname> [ ":" <port> ]` as defined in [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/Location/origin), where `scheme` must be `https`. Note that the `origin` URL must not end with a slash `/`.
+
+The `origin` value used as input to `hash(origin)` MUST be the [ASCII serialization of the website origin](https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin), matching the browser `location.origin`/`URL.origin` serialization. In particular, internationalized domain names MUST be serialized in their ASCII/Punycode form. Server-side validators MUST reconstruct and hash the same ASCII origin string.
+
+Examples:
+
+| Website URL | Signed `origin` value |
+| --- | --- |
+| `https://ria.ee/` | `https://ria.ee` |
+| `https://päike.ee/` | `https://xn--pike-loa.ee` |
+| `https://example.com:8443/path?query#fragment` | `https://example.com:8443` |
 
 #### Requesting a Web eID authentication token
 
