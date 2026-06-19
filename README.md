@@ -235,7 +235,7 @@ The authentication steps are as follows:
     1. validates that the current time falls within the authentication certificate's validity period,
     1. validates that the purpose of the authentication certificate's key usage is client authentication,
     1. validates that the authentication certificate does not contain any disallowed policies,
-    1. validates that the authentication certificate is signed by a trusted certificate authority.
+    1. validates that the authentication certificate is signed by a trusted certificate authority; if the token contains `unverifiedIntermediateCertificates` (see [`web-eid:1.1`](#token-format-version-web-eid11)), they are used only as untrusted input for building the certificate path to the trusted anchor.
 1. **Server application sends the authentication certificate revocation status request to the OCSP responder**. Server verifies the revocation status of the certificate embedded inside the authentication token with the [Online Certificate Status Protocol](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol).
 1. **OCSP responder responds that the certificate status is good**.
 1. **Server application validates the authentication token signature and responds that the user is authenticated**. 
@@ -393,6 +393,59 @@ It contains the following fields:
 The value that is signed by the user’s authentication private key and included in the `signature` field is `hash(origin)+hash(challenge nonce)`. The hash function is used before concatenation to ensure field separation as the hash of a value is guaranteed to have a fixed length. Otherwise the origin `example.com` with challenge nonce `.eu1234` and another origin `example.com.eu` with challenge nonce `1234` would result in the same value after concatenation. The hash function `hash` is the same hash function that is used in the signature algorithm, for example SHA256 in case of RS256.
 
 The `origin` value that is signed over must contain the URL of the website origin, i.e. the URL serving the web application. `origin` URL must be in the form of `<scheme> "://" <hostname> [ ":" <port> ]` as defined in [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/Location/origin), where `scheme` must be `https`. Note that the `origin` URL must not end with a slash `/`.
+
+#### Token format version web-eid:1.1
+
+This version supports sending signing certificates. It also supports sending intermediate certificates for both authentication and signing certificates.
+
+```json
+{
+  "unverifiedCertificate": "MIIFozCCA4ugAwIBAgIQHFpdK-zCQsFW4...",
+  "unverifiedIntermediateCertificates": ["MIIFfhzYIBAAwIBAgIQHFHFp-AwIBFW4..."],
+  "algorithm": "RS256",
+  "signature": "HBjNXIaUskXbfhzYQHvwjKDUWfNu4yxXZha...",
+  "unverifiedSigningCertificates": [
+    {
+      "certificate": "MIIFoXIaUskXbfhzYIBAgIjKDUsdK-zQHFUKz...",
+      "intermediateCertificates": ["MIIFfhzYIBAAwIBAgIQHFHFp-AwIBFW4..."],
+      "supportedSignatureAlgorithms": [
+        {
+          "cryptoAlgorithm": "ECC",
+          "hashFunction": "SHA-384",
+          "paddingScheme": "NONE"
+        }
+      ]
+    }
+  ],
+  "format": "web-eid:1.1",
+  "appVersion": "https://web-eid.eu/web-eid-app/releases/v2.0.0"
+}
+```
+
+It contains the following new fields in addition to those of the [`web-eid:1.0` token format](#token-format):
+
+- `unverifiedIntermediateCertificates`: an array of base64-encoded DER-encoded intermediate CA certificates that make up the trust chain of the authentication certificate in `unverifiedCertificate`. Like the authentication certificate, these certificates are received from the client side and cannot be trusted; they are only used as candidate certificates when building the certification path, which must still terminate at a trusted certificate authority. The field is OPTIONAL, but when present it MUST NOT be empty. When it is present, `unverifiedSigningCertificates` MAY be omitted.
+- `unverifiedSigningCertificates`: an array of the eID user's signing certificates, presented alongside the authentication certificate. This field is REQUIRED unless `unverifiedIntermediateCertificates` is present, and when present it MUST NOT be empty. Each entry contains:
+  - `certificate`: the base64-encoded DER-encoded signing certificate. During validation it MUST have the same subject and issuer as the authentication certificate, be valid, contain the non-repudiation key usage bit and be signed by a trusted certificate authority.
+  - `intermediateCertificates` (OPTIONAL): an array of base64-encoded DER-encoded intermediate CA certificates that make up the trust chain of this signing certificate. When present it MUST NOT be empty and, as with `unverifiedIntermediateCertificates`, the certificates are only used as candidate certificates when building the certification path to a trusted certificate authority.
+  - `supportedSignatureAlgorithms`: the signature algorithms that the signing certificate's key supports, as an array of objects with the following fields:
+    - `cryptoAlgorithm`:  the cryptographic algorithm, ECC for elliptic curve cryptography or RSA for the Rivest-Shamir-Adleman algorithm.
+        ```
+         "ECC", "RSA"
+        ```
+    - `hashFunction`: the cryptographic hash function, any of the SHA-2 or SHA-3 standard algorithms.
+        ```
+         "SHA-224", "SHA-256", "SHA-384", "SHA-512"
+         "SHA3-224", "SHA3-256", "SHA3-384", "SHA3-512"
+        ```
+    - `paddingScheme`: the padding scheme used, for example PKCS1.5 for PKCS#1 v1.5 padding.
+        ```
+         "NONE", "PKCS1.5", "PSS"
+        ```
+
+The `unverified` prefix marks top-level fields whose contents originate in the user's untrusted environment and MUST be validated by the server. Fields nested inside an `unverified*` structure, such as `certificate` and `intermediateCertificates`, omit the prefix, as the enclosing field already conveys the untrusted origin.
+
+The `signature` field, its scope and its computation are unchanged from `web-eid:1.0`: the signature covers only `hash(origin)+hash(challenge nonce)`. None of the certificate fields are protected by the signature — hence the `unverified` prefix — so all of them MUST be validated independently as described above.
 
 #### Requesting a Web eID authentication token
 
