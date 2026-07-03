@@ -118,5 +118,11 @@ The `origin` value used as input to `hash(origin)` MUST be the [ASCII serializat
 
 To verify the signature, the website has to reconstruct the signed data. Since the challenge value and the origin field are not included in the token in the proposed solution, the website is forced to reconstruct the signed data using the origin and challenge values from its trusted local storage. This provides an important security advantage as it is guaranteed that if the signature verification succeeds, then the origin and challenge have been implicitly and correctly verified without the need to implement any additional security checks. Furthermore, it also guarantees that the authentication proof was received from the same browser to which the corresponding challenge was issued, as the website is forced to lookup the challenge and, possibly, the origin, in case it can vary, from its local storage using an identifier specific to the browser session.
 
+#### Clarification on `nonce` (challenge) processing
+
+- The `nonce` value is supplied by the website as a Base64-encoded string representing a cryptographically strong random value containing at least 32 bytes of entropy.
+- The Web-eID application does not validate the nonce as Base64 and does not decode it into raw bytes.
+- The Web-eID application validates only the length of the supplied nonce: it must be at least 44 characters long, corresponding to the length of a Base64-encoded 32-byte value, and no longer than 128 characters.
+
 [^foolproof]: So simple, plain, or reliable as to leave no opportunity for error, misuse, or failure.
 [^jwa]: <https://www.ietf.org/rfc/rfc7518.html>
