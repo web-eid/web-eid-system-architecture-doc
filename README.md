@@ -394,6 +394,12 @@ Examples:
 | `https://päike.ee/` | `https://xn--pike-loa.ee` |
 | `https://example.com:8443/path?query#fragment` | `https://example.com:8443` |
 
+##### Clarification on `nonce` (challenge) processing
+
+- The `nonce` value is supplied by the website as a Base64-encoded string representing a cryptographically strong random value containing at least 32 bytes of entropy.
+- The Web-eID application does not validate the nonce as Base64 and does not decode it into raw bytes.
+- The Web-eID application validates only the length of the supplied nonce: it must be at least 44 characters long, corresponding to the length of a Base64-encoded 32-byte value, and no longer than 128 characters.
+
 #### Requesting a Web eID authentication token
 
 The Web eID authentication token is returned from the following `web-eid.js` JavaScript API call:
