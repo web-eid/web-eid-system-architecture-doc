@@ -380,7 +380,7 @@ It contains the following fields:
 
 - `appVersion`: the URL identifying the name and version of the application that issued the token. Informative purpose, can be used to identify the affected application in case of faulty tokens.
 
-The value that is signed by the user’s authentication private key and included in the `signature` field is `hash(origin)+hash(challenge nonce)`. The hash function is used before concatenation to ensure field separation as the hash of a value is guaranteed to have a fixed length. Otherwise the origin `example.com` with challenge nonce `.eu1234` and another origin `example.com.eu` with challenge nonce `1234` would result in the same value after concatenation. The hash function `hash` is the same hash function that is used in the signature algorithm, for example SHA256 in case of RS256.
+The value that is signed by the user’s authentication private key and included in the `signature` field is `hash(origin)+hash(challenge nonce)`. The hash function is used before concatenation to ensure field separation as the hash of a value is guaranteed to have a fixed length. Otherwise the origin `example.com` with challenge nonce `.eu1234` and another origin `example.com.eu` with challenge nonce `1234` would result in the same value after concatenation. The hash function `hash` is the same hash function that is used in the signature algorithm, for example SHA256 in case of RS256. Both origin and challenge nonce are converted to UTF-8 bytes for hashing, although in practice both contain only ASCII characters.
 
 The `origin` value that is signed over must contain the URL of the website origin, i.e. the URL serving the web application. `origin` URL must be in the form of `<scheme> "://" <hostname> [ ":" <port> ]` as defined in [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/Location/origin), where `scheme` must be `https`. Note that the `origin` URL must not end with a slash `/`.
 
@@ -394,11 +394,13 @@ Examples:
 | `https://päike.ee/` | `https://xn--pike-loa.ee` |
 | `https://example.com:8443/path?query#fragment` | `https://example.com:8443` |
 
-##### Clarification on `nonce` (challenge) processing
+##### Clarification on challenge nonce processing
 
-- The `nonce` value is supplied by the website as a Base64-encoded string representing a cryptographically strong random value containing at least 32 bytes of entropy.
-- The Web-eID application does not validate the nonce as Base64 and does not decode it into raw bytes.
-- The Web-eID application validates only the length of the supplied nonce: it must be at least 44 characters long, corresponding to the length of a Base64-encoded 32-byte value, and no longer than 128 characters.
+- The challenge nonce value is supplied by the website as a Base64-encoded string representing a cryptographically strong random value containing at least 32 bytes of entropy.
+- The Web eID application does not validate the nonce as Base64 and does not decode it into raw bytes.
+- The Web eID application validates only the length of the supplied nonce: it must be at least 44 characters long, corresponding to the length of a Base64-encoded 32-byte value, and no longer than 128 characters.
+
+Base64 encoding is used because the nonce is transported through web and JSON APIs as text. The Web eID application does not require the nonce to be Base64-encoded — Base64 is simply the most suitable encoding for transmitting bytes through the web layer. The application treats the nonce as an opaque challenge string and signs the hash of that exact string; decoding the nonce would not add security value and would only complicate processing.
 
 #### Requesting a Web eID authentication token
 

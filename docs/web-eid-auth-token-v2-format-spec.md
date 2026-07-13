@@ -112,17 +112,19 @@ It contains the following fields:
 
 - `appVersion`: the URL identifying the name and version of the application that issued the token; informative purpose, can be used to identify the affected application in case of faulty tokens.
 
-The value that is signed by the user’s authentication private key and included in the `signature` field is `hash(origin)+hash(challenge)`. The hash function is used before concatenation to ensure field separation as the hash of a value is guaranteed to have a fixed length. Otherwise the origin `example.com` with challenge `.eu1234` and another origin `example.com.eu` with challenge `1234` would result in the same value after concatenation. The hash function `hash` is the same hash function that is used in the signature algorithm, for example SHA256 in case of RS256.
+The value that is signed by the user’s authentication private key and included in the `signature` field is `hash(origin)+hash(challenge)`. The hash function is used before concatenation to ensure field separation as the hash of a value is guaranteed to have a fixed length. Otherwise the origin `example.com` with challenge `.eu1234` and another origin `example.com.eu` with challenge `1234` would result in the same value after concatenation. The hash function `hash` is the same hash function that is used in the signature algorithm, for example SHA256 in case of RS256. Both origin and challenge nonce are converted to UTF-8 bytes for hashing, although in practice both contain only ASCII characters.
 
 The `origin` value used as input to `hash(origin)` MUST be the [ASCII serialization of the website origin](https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin), matching the browser `location.origin`/`URL.origin` serialization. It is serialized in the form `<scheme> "://" <hostname> [ ":" <port> ]`, where `scheme` is `https`, no trailing slash is included, and internationalized domain names are represented in ASCII/Punycode form. For example, the website URL `https://päike.ee/` is signed as `https://xn--pike-loa.ee`.
 
 To verify the signature, the website has to reconstruct the signed data. Since the challenge value and the origin field are not included in the token in the proposed solution, the website is forced to reconstruct the signed data using the origin and challenge values from its trusted local storage. This provides an important security advantage as it is guaranteed that if the signature verification succeeds, then the origin and challenge have been implicitly and correctly verified without the need to implement any additional security checks. Furthermore, it also guarantees that the authentication proof was received from the same browser to which the corresponding challenge was issued, as the website is forced to lookup the challenge and, possibly, the origin, in case it can vary, from its local storage using an identifier specific to the browser session.
 
-#### Clarification on `nonce` (challenge) processing
+#### Clarification on challenge nonce processing
 
-- The `nonce` value is supplied by the website as a Base64-encoded string representing a cryptographically strong random value containing at least 32 bytes of entropy.
-- The Web-eID application does not validate the nonce as Base64 and does not decode it into raw bytes.
-- The Web-eID application validates only the length of the supplied nonce: it must be at least 44 characters long, corresponding to the length of a Base64-encoded 32-byte value, and no longer than 128 characters.
+- The challenge nonce value is supplied by the website as a Base64-encoded string representing a cryptographically strong random value containing at least 32 bytes of entropy.
+- The Web eID application does not validate the nonce as Base64 and does not decode it into raw bytes.
+- The Web eID application validates only the length of the supplied nonce: it must be at least 44 characters long, corresponding to the length of a Base64-encoded 32-byte value, and no longer than 128 characters.
+
+Base64 encoding is used because the nonce is transported through web and JSON APIs as text. The Web eID application does not require the nonce to be Base64-encoded — Base64 is simply the most suitable encoding for transmitting bytes through the web layer. The application treats the nonce as an opaque challenge string and signs the hash of that exact string; decoding the nonce would not add security value and would only complicate processing.
 
 [^foolproof]: So simple, plain, or reliable as to leave no opportunity for error, misuse, or failure.
 [^jwa]: <https://www.ietf.org/rfc/rfc7518.html>
